@@ -1,18 +1,24 @@
-const { Schema, model, isValidObjectId } = require('mongoose');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const { Types: { ObjectId } } = Schema;
-const Height = new Schema({
-    Register: {
+
+
+
+const HeightSchema = new Schema({
+    register: {
         type: ObjectId,
         ref: 'register',
         unique: true
     },
-    Date: {
-        type: Number
+    date: {
+        type: Date,
+        default: Date.now()
     },
 
-    Value: {
+    value: {
         type: Number
     }
 })
 
-module.exports = height = model('height', Height);
+const Height = mongoose.model('height', HeightSchema);
+module.exports = Height

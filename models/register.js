@@ -1,7 +1,8 @@
-const { Schema, model, isValidObjectId } = require('mongoose');
-const { Types: { ObjectId } } = Schema
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const { Types: { ObjectId } } = Schema;
 
-const register = new Schema({
+const registerSchema = new Schema({
 
     parent: {
         type: ObjectId,
@@ -15,10 +16,24 @@ const register = new Schema({
         type: Date,
         default: Date.now
     },
-    type: {
-        type: String
+    typeSleep: {
+        type: [ObjectId],
+        ref: 'sleep'
+    },
+    typeHeight: {
+        type: [ObjectId],
+        ref: 'height'
+    },
+    typeWeight: {
+        type: [ObjectId],
+        ref: 'weight'
+    },
+    typeFeed: {
+        type: [ObjectId],
+        ref: 'feed'
     }
 
 })
 
-module.exports = Register = model('register', register);
+const Register = mongoose.model('register', registerSchema);
+module.exports = Register

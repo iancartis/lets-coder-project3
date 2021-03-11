@@ -1,7 +1,8 @@
-const { Schema, model, isValidObjectId } = require('mongoose');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const { Types: { ObjectId } } = Schema;
 
-const baby = new Schema({
+const babySchema = new Schema({
 
     name: {
         type: String
@@ -29,4 +30,5 @@ const baby = new Schema({
 
 })
 
-module.exports = Baby = model('baby', baby);
+const Baby = mongoose.model('baby', babySchema);
+module.exports = Baby

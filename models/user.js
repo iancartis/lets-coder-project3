@@ -1,18 +1,24 @@
 const { isEmail } = require('validator');
+const Bcrypt = require("bcryptjs");
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const { Types: { ObjectId } } = Schema;
+
 const userSchema = new Schema({
     firstName: {
         type: String,
         //recorta el valor del usuario en el caso que éste añada espacions
-        trim: true
+        trim: true,
+        require: true,
     },
     surName: {
         type: String,
-        trim: true
+        trim: true,
+        require: true,
     },
     age: {
-        type: Number
+        type: Number,
+        require: true,
     },
     email: {
         type: String,
@@ -23,22 +29,30 @@ const userSchema = new Schema({
             validator: isEmail,
             message: 'invalid email'
 
-        }
+        },
+        unique: true
 
     },
     password: {
         type: String,
         require: true,
         minlength: 8,
-    }
+        require: true,
+    },
+    // baby: [{
+    //     type: ObjectId,
+    //     ref: 'baby',
+    //     unique: true
+    // }]
+
 })
 
 
-// },
-// baby: {
-//     type: mongoose.Schema.Types.ObjectId,
-//     ref: 'Baby'
-// }
+userSchema.pre('save', function(next) {
+    this.password = Bcrypt.hashSync(this.password, 10); // Replace with encrypted password
+    next();
+})
+
 
 
 

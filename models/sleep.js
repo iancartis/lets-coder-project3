@@ -1,19 +1,22 @@
-const { Schema, model, isValidObjectId } = require('mongoose');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const { Types: { ObjectId } } = Schema;
-const Sleep = new Schema({
+const SleepSchema = new Schema({
 
-    Register: {
+    register: {
         type: ObjectId,
         ref: 'register',
         unique: true
     },
-    Date: {
-        type: Number
+    date: {
+        type: Date,
+        default: Date.now()
     },
 
-    Value: {
+    value: {
         type: Number
     }
 })
 
-module.exports = sleep = model('sleep', Sleep);
+const Sleep = mongoose.model('sleep', SleepSchema);
+module.exports = Sleep
