@@ -38,12 +38,8 @@ const userSchema = new Schema({
         require: true,
         minlength: 8,
         require: true,
-    },
-    // baby: [{
-    //     type: ObjectId,
-    //     ref: 'baby',
-    //     unique: true
-    // }]
+    }
+
 
 })
 

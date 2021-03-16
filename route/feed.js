@@ -1,21 +1,51 @@
 const express = require('express');
 const registerFeed = express.Router();
 const Feed = require('../models/feed');
+const auth = require("../middleware/auth");
+const Register = require('../models/register');
+
+require("dotenv").config();
+const secret = process.env.JWT_SECRET;
+const { validateValue, validateId, } = require('../validation/validation')
+
 
 //Creates feed
-registerFeed.post('/registerfeed', (req, res) => {
-    const { body: { value, register } } = req
+registerFeed.post('/registerfeed/:baby', auth, async(req, res) => {
+    console.log("_____", req.user)
 
-    let newRegisterFeed = new Feed({
-        value: value,
-        register: register
-    });
+    let { body: { value } } = req
+    let babyId = req.params.baby
+        //1- Filtro el registro según el Id del baby
+    let registerBaby = await Register.findOne({ baby: babyId });
+    console.log(`Este es el RegisterBaby:${registerBaby}`)
+    if (!registerBaby) throw new Error(`no hay registro`);
+
     try {
+        let newRegisterFeed = new Feed({
+            value: value,
+            register: registerBaby.id,
+            baby: babyId
+        })
+        console.log(`Este es el newRegistersleep${newRegisterFeed}`)
+        const registerFeedId = newRegisterFeed._id
+
+        console.log(registerFeedId)
+        console.log(`Èste es el registerBaby  ${registerBaby}`)
+        let registerBabyPushed = await Register.findOneAndUpdate({ baby: babyId }, { $push: { typeFeed: registerFeedId } }, (error, success) => {
+            if (error) console.log(error.message)
+            console.log(success)
+        });
+        console.log(`Èste es el registerBaby  después del push del sleep${registerBabyPushed}`)
+
+        await registerBabyPushed.save()
+            .then(doc => {
+                res.send(doc);
+                console.log(doc);
+            })
         return newRegisterFeed.save()
             .then(doc => {
                 res.send(doc);
                 console.log(doc);
-
             })
             .catch(console.error)
     } catch (error) {
@@ -26,7 +56,7 @@ registerFeed.post('/registerfeed', (req, res) => {
 });
 
 // Get all the feed
-registerFeed.get('/feeds', (req, res) => {
+registerFeed.get('/feeds', auth, (req, res) => {
     Feed.find({}, function(err, feeds) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(feeds);
@@ -34,8 +64,9 @@ registerFeed.get('/feeds', (req, res) => {
 });
 
 //Get feed by id
-registerFeed.get('/feed/:id', (req, res) => {
+registerFeed.get('/feed/:id', auth, (req, res) => {
     const _id = req.params.id
+    validateId(_id)
     Feed.findById(_id)
         .then((feed) => {
             if (!feed) {
@@ -49,9 +80,31 @@ registerFeed.get('/feed/:id', (req, res) => {
         })
 })
 
+registerFeed.get("/feedbaby/:baby", auth, async(req, res) => {
+    const baby = req.params.baby;
+    const getBaby = Feed.findOne({ baby: baby })
+    console.log(getBaby)
+    if (getBaby) {
+        try {
+            Feed.find(getBaby, function(err, feeds) {
+
+                if (feeds) {
+                    res.json({ "message": "Feeds served" });
+                } else console.log(`There's been an error: ${err.message}`)
+            })
+        } catch (error) {
+            res.send("error.message");
+        }
+
+    } else {
+        res.send("There's been an error");
+    }
+})
+
 //Delete height
-registerFeed.delete("/deletefeed/:id", async(req, res) => {
+registerFeed.delete("/deletefeed/:id", auth, async(req, res) => {
     const _id = req.params.id;
+    validateId(_id)
     try {
         const doc = await Feed.findByIdAndRemove(_id);
 
@@ -63,19 +116,21 @@ registerFeed.delete("/deletefeed/:id", async(req, res) => {
 });
 
 //Update Feed
-registerFeed.patch("/updatefeed/:id", async(req, res) => {
+registerFeed.patch("/updatefeed/:id", auth, async(req, res) => {
     const {
-        body: { value, register },
+        body: { value, register, baby },
     } = req;
     const _id = req.params.id;
-    debugger
+    validateId(_id)
+    validateValue(value)
     const filter = { _id: _id.toString() };
     try {
         const updatedFeed = await Feed.findByIdAndUpdate(
             filter, {
                 $set: {
                     value: value,
-                    register: register
+                    register: register,
+                    baby: baby
 
                 }
             }

@@ -14,7 +14,8 @@ const babySchema = new Schema({
     parent: {
         type: ObjectId,
         ref: 'user',
-        unique: true
+        unique: true,
+        default: ""
     },
     weight: {
         type: Number
@@ -22,11 +23,11 @@ const babySchema = new Schema({
     height: {
         type: Number
     },
-    registers: [{
+    registers: {
         type: ObjectId,
         ref: 'register',
         unique: true
-    }]
+    }
 
 })
 

@@ -1,20 +1,42 @@
 const express = require('express');
 const babyRouter = express.Router();
 const Baby = require('../models/baby');
-const User = require('../models/user');
+const auth = require("../middleware/auth");
+require("dotenv").config();
+const Register = require('../models/register')
+const Feed = require('../models/feed')
+const Weight = require('../models/weight')
+const Height = require('../models/height')
+const Sleep = require('../models/sleep')
+
+
+const User = require('../models/user')
+const secret = process.env.JWT_SECRET;
+const { validateId, validateHeight, validateWeight, validateString, validateAge, validateArray, validateRegister } = require('../validation/validation')
+
 
 //Creates baby
-babyRouter.post('/create_baby', async(req, res) => {
-    const { body: { name, age, parent, weight, height, registers } } = req
-    let newBaby = new Baby({
-        name: name,
-        age: age,
-        parent: parent,
-        weight: weight,
-        height: height,
-        registers: registers
-    })
+babyRouter.post('/create_baby', auth, async(req, res) => {
+    console.log(req)
+    let { body: { name, age, weight, height, parent } } = req
+    age = Number(age)
+    height = Number(height)
+    weight = Number(weight)
+
     try {
+        // validateAge(age)
+        validateString(name)
+        validateHeight(height)
+        validateWeight(weight)
+            // validateString(registers)
+        let newBaby = new Baby({
+            name: name,
+            age: age,
+            parent: parent,
+            weight: weight,
+            height: height,
+        })
+
         const doc = await newBaby.save()
         console.log(doc);
         res.send(doc);
@@ -26,18 +48,25 @@ babyRouter.post('/create_baby', async(req, res) => {
 });
 
 //Get all the babies
-babyRouter.get('/babies', (req, res) => {
+babyRouter.get('/babies', auth, (req, res) => {
+    debugger
+
     Baby.find({}, function(err, babies) {
             if (err) console.log(`There's been an error: ${err.message}`)
-            res.send(babies);
+            else {
+                console.log('Baby created');
+                res.send(babies);
+            }
+
         })
-        .populate("parent");
+        .populate("parent registers");
 });
 
 //Get baby by id
-babyRouter.get('/baby/:id', (req, res) => {
+babyRouter.get('/baby/:id', auth, (req, res) => {
     const _id = req.params.id
-    Baby.findById(_id)
+    validateId(_id)
+    Baby.findById(_id).populate("registers")
         .then((user) => {
             if (!user) {
                 return res.status(400).send()
@@ -46,28 +75,70 @@ babyRouter.get('/baby/:id', (req, res) => {
             }
         })
         .catch((error) => {
-            res.status(500).send()
+            res.status(500).send(error.message)
         })
 })
 
-//Delete one baby
-babyRouter.delete("/deletebaby/:id", async(req, res) => {
-    const _id = req.params.id;
-    try {
-        const doc = await Baby.findByIdAndRemove(_id);
+//Pull para eliminar uno de los values de cualquier registro
 
-        res.send(doc, "Baby  deleted");
+//Delete one baby
+babyRouter.delete("/deletebaby/:id", auth, async(req, res) => {
+    const _id = req.params.id;
+    validateId(_id)
+    try {
+
+        const user = req.user.id
+
+        await Baby.findByIdAndRemove(_id);
+
+        await Register.findOneAndDelete({ baby: _id })
+
+        await Sleep.deleteMany({ baby: _id }, function(err, result) {
+            if (err) {
+                res.send(err.message);
+            } else {
+                res.send(result);
+            }
+        })
+        await Feed.deleteMany({ baby: _id }, function(err, result) {
+            if (err) {
+                res.send(err.message);
+            } else {
+                res.send(result);
+            }
+        })
+        await Weight.deleteMany({ baby: _id }, function(err, result) {
+            if (err) {
+                res.send(err.message);
+            } else {
+                res.send(result);
+            }
+        })
+        await Height.deleteMany({ baby: _id }, function(err, result) {
+            if (err) {
+                res.send(err.message);
+            } else {
+                res.send(result);
+            }
+        })
+
+        console.log("Baby and register deleted")
+
+        res.json("Baby and register has been deleted");
     } catch (error) {
         res.status(500).send(error.message);
         console.log(error);
     }
 });
-
 //Update baby
-babyRouter.patch("/updatebaby/:id", async(req, res) => {
+babyRouter.patch("/updatebaby/:id", auth, async(req, res) => {
     const {
         body: { name, age, parent, weight, height, registers },
     } = req;
+    validateString(name)
+
+
+
     const _id = req.params.id;
     debugger
     const filter = { _id: _id.toString() };
@@ -92,8 +163,8 @@ babyRouter.patch("/updatebaby/:id", async(req, res) => {
 });
 
 // Fins babys related to user
-babyRouter.get("/parentbabies/:parent", async(req, res) => {
-    const parent = req.params.parent;
+babyRouter.get("/parentbabies/", auth, async(req, res) => {
+    const parent = req.user.id;
     const getParent = Baby.findOne({ parent: parent })
     if (getParent) {
         try {

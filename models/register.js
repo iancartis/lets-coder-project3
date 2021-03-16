@@ -6,11 +6,14 @@ const registerSchema = new Schema({
 
     parent: {
         type: ObjectId,
-        ref: 'user'
+        ref: 'user',
+
+
     },
     baby: {
         type: ObjectId,
-        ref: 'baby'
+        ref: 'baby',
+
     },
     date: {
         type: Date,
@@ -18,19 +21,23 @@ const registerSchema = new Schema({
     },
     typeSleep: {
         type: [ObjectId],
-        ref: 'sleep'
+        ref: 'sleep',
+        default: []
     },
     typeHeight: {
         type: [ObjectId],
-        ref: 'height'
+        ref: 'height',
+        default: []
     },
     typeWeight: {
         type: [ObjectId],
-        ref: 'weight'
+        ref: 'weight',
+        default: []
     },
     typeFeed: {
         type: [ObjectId],
-        ref: 'feed'
+        ref: 'feed',
+        default: []
     }
 
 })

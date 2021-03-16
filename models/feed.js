@@ -8,7 +8,7 @@ const FeedSchema = new Schema({
     register: {
         type: ObjectId,
         ref: 'register',
-        unique: true
+
     },
     date: {
         type: Date,
@@ -17,6 +17,16 @@ const FeedSchema = new Schema({
 
     value: {
         type: Number
+    },
+    baby: {
+        type: ObjectId,
+        ref: 'baby'
+
+    },
+    comment: {
+        type: ObjectId,
+        ref: 'comment',
+        unique: true
     }
 })
 

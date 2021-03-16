@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose')
 const fs = require('fs');
 const app = express();
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 
 //Connection DB
 const connectDB = require('./connection/connection');
@@ -31,7 +31,7 @@ app.use(express.json())
 app.use(express.urlencoded())
 
 //Listening...
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`server started on port ${port}`);
 })
 
@@ -60,3 +60,5 @@ app.get('/', (req, res) => {
     })
 
 })
+
+module.exports = { app, server }

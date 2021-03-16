@@ -1,22 +1,47 @@
 const express = require('express');
 const registerWeight = express.Router();
 const Weight = require('../models/weight');
+const Register = require('../models/register')
+const auth = require("../middleware/auth");
+require("dotenv").config();
+const secret = process.env.JWT_SECRET;
+const { validateValue, validateId, } = require('../validation/validation');
+const { validate } = require('../models/weight');
+
 
 //Creates weight
-registerWeight.post('/registerweight', (req, res) => {
-    const { body: { value, register } } = req
+registerWeight.post('/registerweight/:baby', auth, async(req, res) => {
+    console.log("_____", req.user)
 
-    let newRegisterWeight = new Weight({
-        value: value,
-        register: register
-    })
-    debugger
+    let { body: { value } } = req
+    let babyId = req.params.baby
+    let registerBaby = await Register.findOne({ baby: babyId });
+    if (!registerBaby) throw new Error(`no hay registro`);
+
     try {
+        let newRegisterWeight = new Weight({
+            value: value,
+            register: registerBaby.id,
+            baby: babyId
+        })
+        const registerWeightId = newRegisterWeight._id
+
+
+        let registerBabyPushed = await Register.findOneAndUpdate({ baby: babyId }, { $push: { typeWeight: registerWeightId } }, (error, success) => {
+            if (error) console.log(error.message)
+            console.log(success)
+        });
+        console.log(`Èste es el registerBaby  después del push del weight${registerBabyPushed}`)
+
+        await registerBabyPushed.save()
+            .then(doc => {
+                res.send(doc);
+                console.log(doc);
+            })
         return newRegisterWeight.save()
             .then(doc => {
                 res.send(doc);
                 console.log(doc);
-
             })
             .catch(console.error)
     } catch (error) {
@@ -27,16 +52,17 @@ registerWeight.post('/registerweight', (req, res) => {
 });
 
 // Get all the Weight registers
-registerWeight.get('/weights', (req, res) => {
+registerWeight.get('/weights', auth, (req, res) => {
     Weight.find({}, function(err, weights) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(weights);
     }).populate('register');
 });
 
-//Get height by id
-registerWeight.get('/weight/:id', (req, res) => {
+//Get weight by id
+registerWeight.get('/weight/:id', auth, (req, res) => {
     const _id = req.params.id
+    validate(_id)
     Weight.findById(_id)
         .then((user) => {
             if (!user) {
@@ -50,9 +76,31 @@ registerWeight.get('/weight/:id', (req, res) => {
         })
 })
 
+registerWeight.get("/weightbaby/:baby", auth, async(req, res) => {
+    const baby = req.params.baby;
+    const getBaby = Weight.findOne({ baby: baby })
+    console.log(getBaby)
+    if (getBaby) {
+        try {
+            Weight.find(getBaby, function(err, weights) {
+
+                if (weights) {
+                    res.send(weights);
+                } else console.log(`There's been an error: ${err.message}`)
+            })
+        } catch (error) {
+            res.send("error.message");
+        }
+
+    } else {
+        res.send("There's been an error");
+    }
+})
+
 //Delete Weight 
-registerWeight.delete("/deleteweight/:id", async(req, res) => {
+registerWeight.delete("/deleteweight/:id", auth, async(req, res) => {
     const _id = req.params.id;
+    validateId(_id)
     try {
         const doc = await Weight.findByIdAndRemove(_id);
 
@@ -63,20 +111,43 @@ registerWeight.delete("/deleteweight/:id", async(req, res) => {
     }
 });
 
+registerWeight.get("/weightbaby/:baby", auth, async(req, res) => {
+    const baby = req.params.baby;
+    const getBaby = Height.findOne({ baby: baby })
+    console.log(getBaby)
+    if (getBaby) {
+        try {
+            Height.find(getBaby, function(err, heights) {
+
+                if (heights) {
+                    res.send(heights);
+                } else console.log(`There's been an error: ${err.message}`)
+            })
+        } catch (error) {
+            res.send("error.message");
+        }
+
+    } else {
+        res.send("There's been an error");
+    }
+})
+
 //Update Weight 
-registerWeight.patch("/updateweight/:id", async(req, res) => {
+registerWeight.patch("/updateweight/:id", auth, async(req, res) => {
     const {
-        body: { value, register },
+        body: { value, register, baby },
     } = req;
     const _id = req.params.id;
-    debugger
+    validateId(_id)
+    validateValue(value)
     const filter = { _id: _id.toString() };
     try {
         const updatedWeight = await Weight.findByIdAndUpdate(
             filter, {
                 $set: {
                     value: value,
-                    register: register
+                    register: register,
+                    baby: baby
                 }
             }
         );

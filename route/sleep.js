@@ -1,22 +1,54 @@
 const express = require('express');
 const registerSleep = express.Router();
 const Sleep = require('../models/sleep');
+const Register = require('../models/register');
+
+const mongoose = require('mongoose')
+const auth = require("../middleware/auth");
+require("dotenv").config();
+const secret = process.env.JWT_SECRET;
+const { validateValue, validateId } = require('../validation/validation')
+
 
 //Creates sleep
-registerSleep.post('/registersleep', (req, res) => {
-    const { body: { value, register } } = req
+registerSleep.post('/registersleep/:baby', auth, async(req, res) => {
+    console.log("_____", req.user)
 
-    let newRegisterSleep = new Sleep({
-        value: value,
-        register: register
-    })
+    let { body: { value } } = req
+    let babyId = req.params.baby
+    console.log(`Este es el babyId:${babyId}`)
     debugger
+    //1- Filtro el registro según el Id del baby
+    let registerBaby = await Register.findOne({ baby: babyId });
+    console.log(`Este es el RegisterBaby:${registerBaby}`)
+    if (!registerBaby) throw new Error(`no hay registro`);
+
     try {
+        let newRegisterSleep = new Sleep({
+            value: value,
+            register: registerBaby.id,
+            baby: babyId
+        })
+        console.log(`Este es el newRegistersleep${newRegisterSleep}`)
+        const registerSleepId = newRegisterSleep._id
+
+        console.log(registerSleepId)
+        console.log(`Èste es el registerBaby  ${registerBaby}`)
+        let registerBabyPushed = await Register.findOneAndUpdate({ baby: babyId }, { $push: { typeSleep: registerSleepId } }, (error, success) => {
+            if (error) console.log(error.message)
+            console.log(success)
+        });
+        console.log(`Èste es el registerBaby  después del push del sleep${registerBabyPushed}`)
+
+        await registerBabyPushed.save()
+            .then(doc => {
+                res.send(doc);
+                console.log(doc);
+            })
         return newRegisterSleep.save()
             .then(doc => {
                 res.send(doc);
                 console.log(doc);
-
             })
             .catch(console.error)
     } catch (error) {
@@ -27,7 +59,7 @@ registerSleep.post('/registersleep', (req, res) => {
 });
 
 // Get all the sleep registers
-registerSleep.get('/sleeps', (req, res) => {
+registerSleep.get('/sleeps', auth, (req, res) => {
     Sleep.find({}, function(err, sleeps) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(sleeps);
@@ -35,8 +67,9 @@ registerSleep.get('/sleeps', (req, res) => {
 });
 
 //Get sleep by id
-registerSleep.get('/sleep/:id', (req, res) => {
+registerSleep.get('/sleep/:id', auth, (req, res) => {
     const _id = req.params.id
+    validateId(_id)
     Sleep.findById(_id)
         .then((user) => {
             if (!user) {
@@ -50,9 +83,31 @@ registerSleep.get('/sleep/:id', (req, res) => {
         })
 })
 
+registerSleep.get("/sleepbaby/:baby", auth, async(req, res) => {
+    const baby = req.params.baby;
+    const getBaby = Sleep.findOne({ baby: baby })
+    console.log(getBaby)
+    if (getBaby) {
+        try {
+            Sleep.find(getBaby, function(err, sleeps) {
+
+                if (sleeps) {
+                    res.send(sleeps);
+                } else console.log(`There's been an error: ${err.message}`)
+            })
+        } catch (error) {
+            res.send("error.message");
+        }
+
+    } else {
+        res.send("There's been an error");
+    }
+})
+
 //Delete sleep
-registerSleep.delete("/deletesleep/:id", async(req, res) => {
+registerSleep.delete("/deletesleep/:id", auth, async(req, res) => {
     const _id = req.params.id;
+    validateId(_id)
     try {
         const doc = await Sleep.findByIdAndRemove(_id);
 
@@ -64,19 +119,21 @@ registerSleep.delete("/deletesleep/:id", async(req, res) => {
 });
 
 //Update sleep 
-registerSleep.patch("/updatesleep/:id", async(req, res) => {
+registerSleep.patch("/updatesleep/:id", auth, async(req, res) => {
     const {
-        body: { value, register },
+        body: { value, register, baby },
     } = req;
     const _id = req.params.id;
-    debugger
+    validateId(_id)
+    validateValue(value)
     const filter = { _id: _id.toString() };
     try {
         const updatedSleep = await Sleep.findByIdAndUpdate(
             filter, {
                 $set: {
                     value: value,
-                    register: register
+                    register: register,
+                    baby: baby
                 }
             }
         );

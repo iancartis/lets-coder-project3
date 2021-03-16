@@ -17,6 +17,16 @@ const HeightSchema = new Schema({
 
     value: {
         type: Number
+    },
+    baby: {
+        type: ObjectId,
+        ref: 'baby'
+
+    },
+    comment: {
+        type: ObjectId,
+        ref: 'comment',
+        unique: true
     }
 })
 

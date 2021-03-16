@@ -1,9 +1,6 @@
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
-
-
-//ACCESS TOKEN SECRET
-const secret = process.env.TOKEN_SECRET;
+const secret = process.env.JWT_SECRET;
 
 
 module.exports = (req, res, next) => {
@@ -11,17 +8,19 @@ module.exports = (req, res, next) => {
 
     try {
         // Bearer <token>
-        debugger
+
         const token = authorization.replace('Bearer ', '')
-        console.log(token)
         if (!token) {
-            return res.sendStatus(403).send({ auth: false, message: 'No token provided.' });
+            console.log('no token')
+            return res.sendStatus(403).send('No token provided.');
 
 
         } else {
             jwt.verify(token, secret, (err, user) => {
-                if (err) return res.sendStatus(403).send({ auth: false, message: 'Failed to authenticate token.' });
-                req.user = user
+                if (err) return res.sendStatus(403).send(token);
+
+                req.user = user.id
+
                 next()
 
             });
