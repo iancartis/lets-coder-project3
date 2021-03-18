@@ -36,7 +36,7 @@ userRouter.post("/register", (req, res) => {
 
 //Login process
 userRouter.post("/login", (req, res) => {
-
+    debugger
     const {
         body: { email, password },
     } = req;

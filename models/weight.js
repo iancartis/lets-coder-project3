@@ -12,6 +12,10 @@ const WeightSchema = new Schema({
         type: Date,
         default: Date.now()
     },
+    registerType: {
+        type: String,
+        default: "typeWeight"
+    },
 
     value: {
         type: Number
@@ -21,11 +25,10 @@ const WeightSchema = new Schema({
         ref: 'baby'
 
     },
-    comment: {
+    comments: [{
         type: ObjectId,
         ref: 'comment',
-        unique: true
-    }
+    }]
 })
 
 const Weight = mongoose.model('weight', WeightSchema);

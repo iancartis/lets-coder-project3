@@ -14,7 +14,7 @@ const babySchema = new Schema({
     parent: {
         type: ObjectId,
         ref: 'user',
-        unique: true,
+
         default: ""
     },
     weight: {

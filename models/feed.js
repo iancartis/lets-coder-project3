@@ -14,6 +14,10 @@ const FeedSchema = new Schema({
         type: Date,
         default: Date.now()
     },
+    registerType: {
+        type: String,
+        default: "typeFeed"
+    },
 
     value: {
         type: Number
@@ -23,11 +27,11 @@ const FeedSchema = new Schema({
         ref: 'baby'
 
     },
-    comment: {
+    comments: [{
         type: ObjectId,
         ref: 'comment',
         unique: true
-    }
+    }]
 })
 
 const Feed = mongoose.model('feed', FeedSchema);

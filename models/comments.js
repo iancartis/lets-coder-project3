@@ -5,18 +5,13 @@ const commentSchema = new Schema({
     userId: {
         type: ObjectId,
         ref: 'user',
-        unique: true
+
     },
     date: {
         type: Date,
         default: Date.now()
     },
-    registerId: {
-        type: ObjectId,
-        ref: 'register',
-        unique: true,
 
-    },
     value: {
         type: String
     },
@@ -24,13 +19,8 @@ const commentSchema = new Schema({
         type: ObjectId,
         ref: 'baby',
         unique: true
-    },
-    registerType: {
-        type: String,
-        enum: ['sleep', 'feed', 'weight', 'height'],
-        required: true
-
     }
+
 
 })
 

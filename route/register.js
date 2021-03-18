@@ -1,7 +1,12 @@
 const express = require('express');
 const registerRouter = express.Router();
 const Register = require('../models/register');
-const Baby = require("../models/baby")
+const Height = require("../models/height")
+const Weight = require("../models/weight")
+const Feed = require("../models/feed")
+const Sleep = require("../models/sleep")
+
+
 const auth = require("../middleware/auth");
 require("dotenv").config();
 const secret = process.env.JWT_SECRET;
@@ -11,14 +16,13 @@ const { validateId, validateHeight, validateWeight, validateString, validateAge,
 //Creates register
 registerRouter.post('/create_register', auth, (req, res) => {
 
-    let { body: { parent, baby = "", typeSleep = [], typeHeight = [], typeWeight = [], typeFeed = [] } } = req
-
+    let { body: { baby = "", typeSleep = [], typeHeight = [], typeWeight = [], typeFeed = [] } } = req
+    console.log(`Request user: ${req.user}`)
     try {
 
-        validateString(parent)
         validateString(baby)
         let newRegister = new Register({
-            parent: parent,
+            parent: req.user,
             baby: baby,
             typeSleep: typeSleep,
             typeHeight: typeHeight,
@@ -49,7 +53,7 @@ registerRouter.get('/registers', auth, (req, res) => {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(registers);
         console.log(registers)
-    }).lean();
+    }).populate('height')
 });
 
 //Get register by id

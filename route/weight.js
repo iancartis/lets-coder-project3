@@ -11,7 +11,6 @@ const { validate } = require('../models/weight');
 
 //Creates weight
 registerWeight.post('/registerweight/:baby', auth, async(req, res) => {
-    console.log("_____", req.user)
 
     let { body: { value } } = req
     let babyId = req.params.baby
@@ -22,7 +21,8 @@ registerWeight.post('/registerweight/:baby', auth, async(req, res) => {
         let newRegisterWeight = new Weight({
             value: value,
             register: registerBaby.id,
-            baby: babyId
+            baby: babyId,
+
         })
         const registerWeightId = newRegisterWeight._id
 
@@ -56,7 +56,7 @@ registerWeight.get('/weights', auth, (req, res) => {
     Weight.find({}, function(err, weights) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(weights);
-    }).populate('register');
+    }).populate('register comments');
 });
 
 //Get weight by id

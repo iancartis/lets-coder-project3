@@ -12,15 +12,11 @@ const { validateValue, validateId } = require('../validation/validation')
 
 //Creates sleep
 registerSleep.post('/registersleep/:baby', auth, async(req, res) => {
-    console.log("_____", req.user)
 
     let { body: { value } } = req
     let babyId = req.params.baby
-    console.log(`Este es el babyId:${babyId}`)
     debugger
-    //1- Filtro el registro según el Id del baby
     let registerBaby = await Register.findOne({ baby: babyId });
-    console.log(`Este es el RegisterBaby:${registerBaby}`)
     if (!registerBaby) throw new Error(`no hay registro`);
 
     try {
@@ -29,16 +25,13 @@ registerSleep.post('/registersleep/:baby', auth, async(req, res) => {
             register: registerBaby.id,
             baby: babyId
         })
-        console.log(`Este es el newRegistersleep${newRegisterSleep}`)
         const registerSleepId = newRegisterSleep._id
 
-        console.log(registerSleepId)
-        console.log(`Èste es el registerBaby  ${registerBaby}`)
+
         let registerBabyPushed = await Register.findOneAndUpdate({ baby: babyId }, { $push: { typeSleep: registerSleepId } }, (error, success) => {
             if (error) console.log(error.message)
             console.log(success)
         });
-        console.log(`Èste es el registerBaby  después del push del sleep${registerBabyPushed}`)
 
         await registerBabyPushed.save()
             .then(doc => {
@@ -63,7 +56,7 @@ registerSleep.get('/sleeps', auth, (req, res) => {
     Sleep.find({}, function(err, sleeps) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(sleeps);
-    }).populate('register');
+    }).populate('register comments');
 });
 
 //Get sleep by id

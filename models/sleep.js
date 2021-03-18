@@ -12,6 +12,10 @@ const SleepSchema = new Schema({
         type: Date,
         default: Date.now()
     },
+    registerType: {
+        type: String,
+        default: "typeSleep"
+    },
 
     value: {
         type: Number
@@ -20,11 +24,11 @@ const SleepSchema = new Schema({
         type: ObjectId,
         ref: 'baby'
     },
-    comment: {
+    comments: [{
         type: ObjectId,
         ref: 'comment',
         unique: true
-    }
+    }]
 })
 
 const Sleep = mongoose.model('sleep', SleepSchema);

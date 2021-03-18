@@ -17,7 +17,6 @@ const { validateId, validateHeight, validateWeight, validateString, validateAge,
 
 //Creates baby
 babyRouter.post('/create_baby', auth, async(req, res) => {
-    console.log(req)
     let { body: { name, age, weight, height, parent } } = req
     age = Number(age)
     height = Number(height)

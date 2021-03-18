@@ -10,7 +10,6 @@ const { validateValue, validateId, } = require('../validation/validation')
 
 //Creates register
 registerHeight.post('/registerheight/:baby', auth, async(req, res) => {
-    console.log("_____", req.user)
 
     let { body: { value } } = req
     let babyId = req.params.baby
@@ -30,7 +29,6 @@ registerHeight.post('/registerheight/:baby', auth, async(req, res) => {
             if (error) console.log(error.message)
             console.log(success)
         });
-        console.log(`Èste es el registerBaby  después del push del weight${registerBabyPushed}`)
 
         await registerBabyPushed.save()
             .then(doc => {
@@ -55,7 +53,7 @@ registerHeight.get('/heights', auth, (req, res) => {
     Height.find({}, function(err, heights) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(heights);
-    }).populate('register');
+    }).populate('register comments');
 });
 //Get all heights by baby
 registerHeight.get("/heightbaby/:baby", auth, async(req, res) => {

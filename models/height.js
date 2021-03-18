@@ -14,6 +14,10 @@ const HeightSchema = new Schema({
         type: Date,
         default: Date.now()
     },
+    registerType: {
+        type: String,
+        default: "typeHeight"
+    },
 
     value: {
         type: Number
@@ -23,11 +27,11 @@ const HeightSchema = new Schema({
         ref: 'baby'
 
     },
-    comment: {
+    comments: [{
         type: ObjectId,
         ref: 'comment',
-        unique: true
-    }
+
+    }]
 })
 
 const Height = mongoose.model('height', HeightSchema);
