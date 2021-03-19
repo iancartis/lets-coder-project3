@@ -53,7 +53,7 @@ registerHeight.get('/heights', auth, (req, res) => {
     Height.find({}, function(err, heights) {
         if (err) console.log(`There's been an error: ${err.message}`)
         res.send(heights);
-    }).populate('register comments');
+    }).populate('comments');
 });
 //Get all heights by baby
 registerHeight.get("/heightbaby/:baby", auth, async(req, res) => {

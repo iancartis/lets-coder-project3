@@ -13,17 +13,19 @@ const auth = require("../middleware/auth");
 
 
 //Creates comment
+//TO-DO: Añadir el baby al body
 commentRouter.post("/create_comment/:registerValueId", auth, async(req, res) => {
     const registerValueId = req.params.registerValueId
     console.log(req.user)
     const {
-        body: { value }
+        body: { value, baby }
     } = req;
 
     try {
         let newComment = new Comment({
             userId: req.user,
-            value: value
+            value: value,
+            baby: baby
         })
 
         const doc = await newComment.save();
@@ -158,7 +160,7 @@ commentRouter.delete("/deletecomment/:id", auth, async(req, res) => {
 commentRouter.patch("/updatecomment/:id", auth, async(req, res) => {
     console.log(req.user)
     const {
-        body: { registerId, value },
+        body: { registerId, value, baby },
     } = req;
     const _id = req.params.id;
     debugger
@@ -169,7 +171,8 @@ commentRouter.patch("/updatecomment/:id", auth, async(req, res) => {
                 $set: {
                     userId: req.user,
                     registerId: registerId,
-                    value: value
+                    value: value,
+                    baby: baby
                 }
             }
         );

@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
 
         } else {
             jwt.verify(token, secret, (err, user) => {
-                if (err) return res.sendStatus(403).send(token);
+                if (err) return res.sendStatus(403).send('token');
 
                 req.user = user.id
 
@@ -27,6 +27,6 @@ module.exports = (req, res, next) => {
         }
 
     } catch (error) {
-        throw new Error(error.message)
+        res.send('Could not validate the user ')
     }
 }

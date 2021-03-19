@@ -33,7 +33,7 @@ registerRouter.post('/create_register', auth, (req, res) => {
         return newRegister.save()
             .then(document => {
                 console.log(document);
-                return res.json({ message: "The register has been created" })
+                return res.send({ message: "The register has been created", baby: document })
             })
             .catch(error => {
                 console.log(error);

@@ -12,37 +12,22 @@ const auth = require('../middleware/auth')
 
 // Register process
 
-userRouter.post("/register", (req, res) => {
-    validateEmail(req.body.email)
-        // validatePassword(req.body.password)
-    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-
-    User.create({
-            email: req.body.email,
-            password: hashedPassword,
-        }).then((user) => {
-            // create a token
-            let token = jwt.sign({ id: user._id }, secret, {
-                expiresIn: '24h' // expires in 24 hours
-            })
-            console.log(token);
-            return res.status(201).send(token)
-        })
-        .catch((err) => { return res.send(err) })
-})
 
 
 
 
-//Login process
+// Login process
+// TO-DO: Añadir al token una array de babies del usuario
 userRouter.post("/login", (req, res) => {
     debugger
     const {
         body: { email, password },
     } = req;
+    if (!email || !password) res.send('Please fill in the required values')
     validateEmail(email)
     validatePassword(password)
-        //Verificación del password encriptado
+
+    //Verificación del password encriptado
     User.findOne({ email })
         .then((user) => {
             if (!user) {
@@ -51,15 +36,17 @@ userRouter.post("/login", (req, res) => {
                 const _password = user.password;
                 bcrypt
                     .compare(password, _password)
-                    .then((result) => {
+
+                .then((result) => {
+                        console.log(result)
                         if (result == false) {
-                            return "credential error";
+                            return res.send('Invalid credentials')
                         } else {
                             const id = user._id;
-                            const token = jwt.sign({ id: id }, secret, {
+                            const token = jwt.sign({ id: id, }, secret, {
                                 expiresIn: 60 * 60 * 24,
                             });
-                            return res.status(201).send(token)
+                            return res.status(201).send({ message: 'login successful', token: token })
                         }
                     })
                     .catch((error) => {
@@ -107,7 +94,7 @@ userRouter.post("/create_user", (req, res) => {
                                 expiresIn: '24h' // expires in 24 hours
                             })
 
-                            return res.status(201).send(token)
+                            return res.status(201).send({ message: 'user created', token: token })
                         })
                         .catch((err) => {
                             res.status(400).send(err.message);
@@ -136,7 +123,7 @@ userRouter.get("/users/:id", auth, (req, res) => {
     User.findById(_id)
         .then((user) => {
             if (!user) {
-                return res.status(400).send();
+                return res.status(400).send('There are not users not display');
             } else {
                 console.log(user);
                 res.send(user);

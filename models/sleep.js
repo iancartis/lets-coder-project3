@@ -6,7 +6,6 @@ const SleepSchema = new Schema({
     register: {
         type: ObjectId,
         ref: 'register',
-        unique: true
     },
     date: {
         type: Date,

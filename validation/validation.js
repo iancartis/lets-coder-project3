@@ -1,5 +1,8 @@
+const { json } = require("express")
+
 const validation = {
     validateEmail(email) {
+
         if (typeof email !== 'string') throw new TypeError(`not a valid ${email}`)
         if (!email.trim().length) throw new Error(`${email} is empty or blank`)
         if (!/^(([^<>()[]\.,;:\s@"]+(.[^<>()[]\.,;:\s@"]+)*)|(".+"))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/) throw new Error(`${email} is no valid`)

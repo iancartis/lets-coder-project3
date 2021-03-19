@@ -18,7 +18,7 @@ const commentSchema = new Schema({
     babyId: {
         type: ObjectId,
         ref: 'baby',
-        unique: true
+
     }
 
 

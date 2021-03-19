@@ -16,11 +16,14 @@ const { validateId, validateHeight, validateWeight, validateString, validateAge,
 
 
 //Creates baby
+//To-do Cambiar la edad por fecha de nacimiento y añadir la libreria moment.js
+//To-Do: Revisar los populates
 babyRouter.post('/create_baby', auth, async(req, res) => {
-    let { body: { name, age, weight, height, parent } } = req
+    let { body: { name, age, weight, height } } = req
     age = Number(age)
     height = Number(height)
     weight = Number(weight)
+
 
     try {
         // validateAge(age)
@@ -31,14 +34,14 @@ babyRouter.post('/create_baby', auth, async(req, res) => {
         let newBaby = new Baby({
             name: name,
             age: age,
-            parent: parent,
+            parent: req.user,
             weight: weight,
             height: height,
         })
 
         const doc = await newBaby.save()
         console.log(doc);
-        res.send(doc);
+        res.send({ message: 'Baby created successfully', Baby: doc });
 
     } catch (err) {
         res.status(500).send(err);
@@ -51,14 +54,14 @@ babyRouter.get('/babies', auth, (req, res) => {
     debugger
 
     Baby.find({}, function(err, babies) {
-            if (err) console.log(`There's been an error: ${err.message}`)
-            else {
-                console.log('Baby created');
-                res.send(babies);
-            }
+        if (err) console.log(`There's been an error: ${err.message}`)
+        else {
 
-        })
-        .populate("parent registers");
+            res.send(babies);
+        }
+
+    })
+
 });
 
 //Get baby by id
@@ -92,36 +95,36 @@ babyRouter.delete("/deletebaby/:id", auth, async(req, res) => {
 
         await Register.findOneAndDelete({ baby: _id })
 
-        await Sleep.deleteMany({ baby: _id }, function(err, result) {
-            if (err) {
-                res.send(err.message);
-            } else {
-                res.send(result);
-            }
-        })
-        await Feed.deleteMany({ baby: _id }, function(err, result) {
-            if (err) {
-                res.send(err.message);
-            } else {
-                res.send(result);
-            }
-        })
-        await Weight.deleteMany({ baby: _id }, function(err, result) {
-            if (err) {
-                res.send(err.message);
-            } else {
-                res.send(result);
-            }
-        })
-        await Height.deleteMany({ baby: _id }, function(err, result) {
-            if (err) {
-                res.send(err.message);
-            } else {
-                res.send(result);
-            }
-        })
+        // await Sleep.deleteMany({ baby: _id }, function(err, result) {
+        //         if (err) {
+        //             res.send(err.message);
+        //         } else {
+        //             res.send(result);
+        //         }
+        //     })
+        // await Feed.deleteMany({ baby: _id }, function(err, result) {
+        //     if (err) {
+        //         res.send(err.message);
+        //     } else {
+        //         res.send(result);
+        //     }
+        // })
+        // await Weight.deleteMany({ baby: _id }, function(err, result) {
+        //     if (err) {
+        //         res.send(err.message);
+        //     } else {
+        //         res.send(result);
+        //     }
+        // })
+        // await Height.deleteMany({ baby: _id }, function(err, result) {
+        //     if (err) {
+        //         res.send(err.message);
+        //     } else {
+        //         res.send(result);
+        //     }
+        // })
 
-        console.log("Baby and register deleted")
+
 
         res.json("Baby and register has been deleted");
     } catch (error) {
@@ -132,7 +135,7 @@ babyRouter.delete("/deletebaby/:id", auth, async(req, res) => {
 //Update baby
 babyRouter.patch("/updatebaby/:id", auth, async(req, res) => {
     const {
-        body: { name, age, parent, weight, height, registers },
+        body: { name, age, weight, height, registers },
     } = req;
     validateString(name)
 
@@ -147,7 +150,7 @@ babyRouter.patch("/updatebaby/:id", auth, async(req, res) => {
                 $set: {
                     name: name,
                     age: age,
-                    parent: parent,
+                    parent: req.user,
                     weight: weight,
                     height: height,
                     registers: registers

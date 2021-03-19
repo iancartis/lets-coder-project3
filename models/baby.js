@@ -8,7 +8,7 @@ const babySchema = new Schema({
         type: String
     },
 
-    age: {
+    birthDate: {
         type: Number
     },
     parent: {
@@ -26,7 +26,7 @@ const babySchema = new Schema({
     registers: {
         type: ObjectId,
         ref: 'register',
-        unique: true
+
     }
 
 })

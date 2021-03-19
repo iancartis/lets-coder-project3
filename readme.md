@@ -1,6 +1,6 @@
 # IBaby APP
-This app tracks the breastfeeding and weight of a newborn. 
-The user will be able to add a baby, register each feed and weight and height variation and finally take a look at the progression of each metric trough charts.
+This app tracks the breastfeeding, height and weight of a newborn. 
+The user will be able to add a baby, register each feed, weight,height and sleep variations and finally take a look at the progression of each metric trough charts.
 
 ## Data Model
 ![Css Compiling route](./doc/datamodel.png)
@@ -26,23 +26,23 @@ Here are the list of endpoints created in order to fullfill the app requirements
 
 ### Users
 
-    Request info:
-    - Email
-    - Password
-    - Age
-    - Name
-    - Surname
+Request info:
+- Email
+- Password
+- Age
+- Name
+- Surname
 
-    Public routes:
-    - Register: creation of the user and it's token. Fields defined on the DataModel section
-    - Login: User authentication endpoint. Token creation (24h duration)
+Public routes:
+- Register: creation of the user and it's token. Fields defined on the DataModel section
+- Login: User authentication endpoint. Token creation (24h duration)
 
-    Private routes:
-    - Get all users: Endpoint with the list of each user on the DB.
-    - Get user by id: Endpoint to access a concrete user by its id.
-    - Delete user: Endpoint to delete a user by its id.
-    - Update user: Endpoint to update a user by its id.
-    - Add baby to a user: Endpoint to add a baby to a user. 
+Private routes:
+- Get all users: Endpoint with the list of each user on the DB.
+- Get user by id: Endpoint to access a concrete user by its id.
+- Delete user: Endpoint to delete a user by its id.
+- Update user: Endpoint to update a user by its id.
+- Add baby to a user: Endpoint to add a baby to a user. 
 
 ### Baby
 All private routes ⛔️
